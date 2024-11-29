@@ -1,0 +1,64 @@
+# export PYTHONPATH=. && export CUDA_VISIBLE_DEVICES=0 && python run/optimize.py
+hydra:
+  job:
+    name: optimize
+    chdir: true
+  run:
+    dir: ${dir.output_dir}/${exp_name}/single
+  sweep:
+    dir: ${dir.output_dir}/${exp_name}
+    subdir: run${hydra.job.num}
+  callbacks:
+    save_job_info:
+      _target_: hydra.experimental.callbacks.PickleJobInfoCallback
+
+defaults:
+  - _self_
+  - dir: local
+
+exp_name: dummy
+model_path: google/gemma-2-9b
+load_in_8bit: False
+device_map: auto
+seed: 42
+
+target_id: 5
+initial_solution: /workspace/Santa2024/output/id5_65.34542957624015.txt
+
+operators: [
+  {
+    operator: PairPointShuffle,
+    operator_kwargs: {},
+  },
+  {
+    operator: TokensShuffle,
+    operator_kwargs: {
+      max_tokens: 3,
+    },
+  },
+  {
+    operator: TokensShuffle,
+    operator_kwargs: {
+      max_tokens: 7,
+    },
+  },
+  {
+    operator: TokensShuffle,
+    operator_kwargs: {
+      max_tokens: 11,
+    },
+  },
+]
+
+sampler: UniformSampler
+sampler_kwargs: {
+}
+
+num_cycles: 10
+temp_start: 10.0
+temp_end: 0.5
+cooling_rate: 0.999
+steps_per_temp: 5
+precomputed: {}
+verbose: true
+logging_step: 50
