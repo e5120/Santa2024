@@ -2,12 +2,13 @@ import math
 import random
 
 
-def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, precomputed={}, verbose=False, logging_step=1):
+# ToDo: どの操作がスコアを上げたのかをログする機能の追加
+def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, precomputed={}, verbose=False, logging_step=1, batch_size=1):
     # initial setting
     text = text.strip()
     tokens = text.split(" ")
     best_tokens = tokens.copy()
-    best_score = scorer.get_perplexity(text)
+    best_score = scorer.get_perplexity(text, batch_size=batch_size)
     # optimization
     temp = temp_start
     print(f"start temp: {temp:.2f}, init score: {best_score:.5f}")
@@ -21,7 +22,7 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
             if new_text in precomputed:
                 new_score = precomputed[new_text]
             else:
-                new_score = scorer.get_perplexity(new_text)
+                new_score = scorer.get_perplexity(new_text, batch_size=batch_size)
                 precomputed[new_text] = new_score
             delta = new_score - best_score
             if delta < 0:
@@ -29,7 +30,6 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
                 best_tokens = tokens.copy()
                 best_score = new_score
                 print(">", end="")
-            # elif random.random() < math.exp(-10 / temp):
             elif random.random() < math.exp(-delta / temp):
                 # explore
                 print("<", end="")
