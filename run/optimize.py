@@ -15,7 +15,7 @@ TOKEN = "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"
 
 @hydra.main(config_path="conf", config_name="optimize", version_base=None)
 def main(cfg):
-    setup(cfg)
+    # setup(cfg)
     df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
     ops = []
     for op in cfg.operators:
@@ -48,7 +48,7 @@ def main(cfg):
             logging_step=cfg.logging_step,
         )
         print(f"\nbest score: {best_score:.5f}, # of search: {len(precomputed)}, best order: {best_text}")
-        with open(f"/workspace/Santa2024/output/id{cfg.target_id}_{best_score:.5f}.txt", "w") as f:
+        with open(f"{cfg.dir.output_dir}/id{cfg.target_id}_{best_score:.5f}.txt", "w") as f:
             f.write(best_text)
         best_scores.append(best_score)
     print(best_scores)
