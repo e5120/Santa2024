@@ -31,7 +31,9 @@ class PairPointShuffle(Operator):
 
 
 class TokensShuffle(Operator):
-    def __init__(self, max_tokens=3):
+    def __init__(self, min_tokens=1, max_tokens=3):
+        assert min_tokens < max_tokens
+        self.min_tokens = min_tokens
         self.max_tokens = max_tokens
 
     def apply(self, tokens):
@@ -40,8 +42,8 @@ class TokensShuffle(Operator):
             i, j = random.sample(range(len(tokens)), k=2)
             if i > j:
                 i, j = j, i
-            i_end = i + random.randint(1, self.max_tokens+1)
-            j_end = j + random.randint(1, self.max_tokens+1)
+            i_end = i + random.randint(self.min_tokens, self.max_tokens+1)
+            j_end = j + random.randint(self.min_tokens, self.max_tokens+1)
             if i_end <= j:
                 break
         tokens = tokens[:i] + tokens[j: j_end] + tokens[i_end: j] + tokens[i: i_end] + tokens[j_end:]
@@ -49,26 +51,30 @@ class TokensShuffle(Operator):
 
 
 class TokensReverse(Operator):
-    def __init__(self, max_tokens=3):
+    def __init__(self, min_tokens=2, max_tokens=3):
+        assert min_tokens < max_tokens
+        self.min_tokens = min_tokens
         self.max_tokens = max_tokens
 
     def apply(self, tokens):
         assert len(tokens) > self.max_tokens
         i = random.choice(range(len(tokens)-1))
-        j = random.choice(range(2, self.max_tokens+1))
+        j = random.choice(range(self.min_tokens, self.max_tokens+1))
         k = min(i+j, len(tokens))
         tokens[i:k] = tokens[i:k][::-1]
         return tokens
 
 
 class TokensInsert(Operator):
-    def __init__(self, max_tokens=3):
+    def __init__(self, min_tokens=2, max_tokens=3):
+        assert min_tokens < max_tokens
+        self.min_tokens = min_tokens
         self.max_tokens = max_tokens
 
     def apply(self, tokens):
         assert len(tokens) > self.max_tokens
         i = random.choice(range(len(tokens)))
-        j = random.choice(range(2, self.max_tokens+1))
+        j = random.choice(range(self.min_tokens, self.max_tokens+1))
         k = min(i+j, len(tokens))
         sub_tokens = tokens[i:k]
         main_tokens = tokens[:i] + tokens[k:]
