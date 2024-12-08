@@ -1,0 +1,30 @@
+# export PYTHONPATH=. && export CUDA_VISIBLE_DEVICES=0 && python run/optimize.py
+hydra:
+  job:
+    name: optimize
+    chdir: true
+  run:
+    dir: ${dir.output_dir}/${exp_name}/single
+  sweep:
+    dir: ${dir.output_dir}/${exp_name}
+    subdir: run${hydra.job.num}
+  callbacks:
+    save_job_info:
+      _target_: hydra.experimental.callbacks.PickleJobInfoCallback
+
+defaults:
+  - _self_
+  - dir: local
+
+target_id: 0
+initial_solution: ~
+
+pop_size: 512
+epochs: 100
+lr: 0.0001
+
+exp_name: dummy
+model_path: google/gemma-2-9b
+load_in_8bit: False
+device_map: auto
+seed: 42
