@@ -43,6 +43,7 @@ def main(cfg):
             temp_end=cfg.temp_end,
             cooling_rate=cfg.cooling_rate,
             steps_per_temp=cfg.steps_per_temp,
+            alpha=cfg.alpha,
             precomputed=precomputed,
             verbose=cfg.verbose,
             logging_step=cfg.logging_step,

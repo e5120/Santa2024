@@ -24,6 +24,7 @@ temp_start: 10.0
 temp_end: 0.5
 cooling_rate: 0.999
 steps_per_temp: 5
+alpha: 1.0
 precomputed: {}
 verbose: true
 logging_step: 50
@@ -40,14 +41,7 @@ operators: [
   # {
   #   operator: TokensShuffle,
   #   operator_kwargs: {
-  #     max_tokens: 5,
-  #   },
-  # },
-  # {
-  #   operator: TokensShuffle,
-  #   operator_kwargs: {
-  #     max_tokens: 17,
-  #     # max_tokens: 21,
+  #     max_tokens: 49,
   #   },
   # },
   # {
@@ -59,7 +53,8 @@ operators: [
   {
     operator: TokensInsert,
     operator_kwargs: {
-      max_tokens: 25,
+      # min_tokens: 2,
+      max_tokens: 29,
     },
   },
 ]

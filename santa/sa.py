@@ -3,7 +3,7 @@ import random
 
 
 # ToDo: どの操作がスコアを上げたのかをログする機能の追加
-def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, precomputed={}, verbose=False, logging_step=1, batch_size=1):
+def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, alpha=1.0, precomputed={}, verbose=False, logging_step=1, batch_size=1):
     # initial setting
     text = text.strip()
     tokens = text.split(" ")
@@ -30,7 +30,7 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
                 best_tokens = tokens.copy()
                 best_score = new_score
                 print(">", end="")
-            elif random.random() < math.exp(-delta / temp):
+            elif random.random() < math.exp(-alpha*delta / temp):
                 # explore
                 print("<", end="")
             else:
