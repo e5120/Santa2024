@@ -1,4 +1,3 @@
-import math
 from pathlib import Path
 
 import hydra
@@ -8,7 +7,7 @@ import santa.operator
 import santa.sampler
 from santa.sa import simulated_annealing
 from santa.metrics import PerplexityCalculator
-from santa.utils import setup
+from santa.utils import setup, save_text
 
 
 TOKEN = "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"
@@ -50,9 +49,7 @@ def main(cfg):
             logging_step=cfg.logging_step,
         )
         print(f"\nbest score: {best_score:.5f}, # of search: {len(precomputed)}, best order: {best_text}")
-        f, i = math.modf(best_score)
-        with open(f"{cfg.dir.output_dir}/id{cfg.target_id}_{int(i):0>4}.{int(f*100000)}.txt", "w") as f:
-            f.write(best_text)
+        save_text(best_text, best_score, cfg.target_id, output_dir=cfg.dir.output_dir)
         best_scores.append(best_score)
     print(best_scores)
     scorer.clear_gpu_memory()
