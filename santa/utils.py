@@ -1,4 +1,6 @@
+import math
 import itertools
+from pathlib import Path
 
 import numpy as np
 # import hydra
@@ -22,3 +24,11 @@ def sub_permutations(tokens, fixed_ids=[]):
         for i in fixed_ids:
             perm.insert(i, tokens[i])
     return perms
+
+
+def save_text(text, score, target_id, output_dir="./output"):
+    f, i = math.modf(score)
+    i = int(i)
+    f = int(f * 100000)
+    with open(Path(output_dir, f"id{target_id}_{i:0>4}.{f}.txt"), "w") as f:
+        f.write(text)

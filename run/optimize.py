@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 
 import hydra
@@ -49,7 +50,8 @@ def main(cfg):
             logging_step=cfg.logging_step,
         )
         print(f"\nbest score: {best_score:.5f}, # of search: {len(precomputed)}, best order: {best_text}")
-        with open(f"{cfg.dir.output_dir}/id{cfg.target_id}_{best_score:.5f}.txt", "w") as f:
+        f, i = math.modf(best_score)
+        with open(f"{cfg.dir.output_dir}/id{cfg.target_id}_{int(i):0>4}.{int(f*100000)}.txt", "w") as f:
             f.write(best_text)
         best_scores.append(best_score)
     print(best_scores)
