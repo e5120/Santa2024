@@ -1,3 +1,4 @@
 name: local
 data_dir: /workspace/Santa2024/data
 output_dir: /workspace/Santa2024/output
+log_dir: /workspace/Santa2024/logs
