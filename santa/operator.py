@@ -81,3 +81,20 @@ class TokensInsert(Operator):
         l = random.choice(range(len(main_tokens)))
         tokens = main_tokens[:l] + sub_tokens + main_tokens[l:]
         return tokens
+
+
+class TokensShuffle(Operator):
+    def __init__(self, min_tokens=2, max_tokens=3):
+        assert min_tokens < max_tokens
+        self.min_tokens = min_tokens
+        self.max_tokens = max_tokens
+
+    def apply(self, tokens):
+        assert len(tokens) > self.max_tokens
+        i = random.choice(range(len(tokens)))
+        j = random.choice(range(self.min_tokens, self.max_tokens+1))
+        k = min(i+j, len(tokens))
+        sub_tokens = tokens[i:k]
+        random.shuffle(sub_tokens)
+        tokens = tokens[:i] + sub_tokens + tokens[k:]
+        return tokens
