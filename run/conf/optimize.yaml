@@ -20,12 +20,11 @@ target_id: 0
 initial_solution: ~
 
 num_cycles: 100
-temp_start: 20.0
-temp_end: 1.0
+temp_start: 10.0
+temp_end: 0.5
 cooling_rate: 0.999
 steps_per_temp: 10
 alpha: 1.0
-precomputed: {}
 verbose: true
 logging_step: 50
 
@@ -59,10 +58,9 @@ operators: [
     },
   },
   {
-    operator: TokensShuffle,
+    operator: TokensRandomShuffle,
     operator_kwargs: {
-      min_tokens: 2,
-      max_tokens: 10,
+      num_shuffles: 5,
     },
   },
 ]

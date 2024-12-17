@@ -1,5 +1,7 @@
-import math
 import itertools
+import math
+import pickle
+import datetime
 from pathlib import Path
 
 import numpy as np
@@ -32,3 +34,33 @@ def save_text(text, score, target_id, output_dir="./output"):
     f = int(f * 100000)
     with open(Path(output_dir, f"id{target_id}_{i:0>4}.{f}.txt"), "w") as f:
         f.write(text)
+
+
+def get_log_path(target_id, root_dir="./logs"):
+    return Path(root_dir, f"id{target_id}_logs.pkl")
+
+
+def load_logs(target_id, root_dir="./logs"):
+    file_path = get_log_path(target_id, root_dir=root_dir)
+    print(file_path)
+    if file_path.is_file():
+        return pickle.load(open(file_path, "rb"))
+    else:
+        return {}
+
+
+def save_logs(logs, target_id, root_dir="./logs"):
+    Path(root_dir).mkdir(parents=True, exist_ok=True)
+    file_path = get_log_path(target_id, root_dir=root_dir)
+    pickle.dump(logs, open(file_path, "wb"))
+
+
+def save_history(text_history, score_history, target_id, root_dir="./logs"):
+    today = datetime.datetime.today().strftime('%Y%m%d_%H%M')
+    Path(root_dir).mkdir(parents=True, exist_ok=True)
+    file_path = Path(root_dir, f"id{target_id}_{today}.pkl")
+    logs = {
+        "text": text_history,
+        "score": score_history,
+    }
+    pickle.dump(logs, open(file_path, "wb"))

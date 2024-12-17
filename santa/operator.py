@@ -83,18 +83,12 @@ class TokensInsert(Operator):
         return tokens
 
 
-class TokensShuffle(Operator):
-    def __init__(self, min_tokens=2, max_tokens=3):
-        assert min_tokens < max_tokens
-        self.min_tokens = min_tokens
-        self.max_tokens = max_tokens
+class TokensRandomShuffle(Operator):
+    def __init__(self, num_shuffles=10):
+        self.num_shuffles = num_shuffles
+        self.pps = PairPointShuffle()
 
     def apply(self, tokens):
-        assert len(tokens) > self.max_tokens
-        i = random.choice(range(len(tokens)))
-        j = random.choice(range(self.min_tokens, self.max_tokens+1))
-        k = min(i+j, len(tokens))
-        sub_tokens = tokens[i:k]
-        random.shuffle(sub_tokens)
-        tokens = tokens[:i] + sub_tokens + tokens[k:]
+        for _ in range(self.num_shuffles):
+            tokens = self.pps(tokens)
         return tokens
