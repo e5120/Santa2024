@@ -32,7 +32,7 @@ def save_text(text, score, target_id, output_dir="./output"):
     f, i = math.modf(score)
     i = int(i)
     f = int(f * 100000)
-    with open(Path(output_dir, f"id{target_id}_{i:0>4}.{f}.txt"), "w") as f:
+    with open(Path(output_dir, f"id{target_id}_{i:0>4}.{f:0>5}.txt"), "w") as f:
         f.write(text)
 
 
