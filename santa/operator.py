@@ -92,3 +92,28 @@ class TokensRandomShuffle(Operator):
         for _ in range(self.num_shuffles):
             tokens = self.pps(tokens)
         return tokens
+
+
+class BaseCrossover(metaclass=ABCMeta):
+    def __call__(self, p1, p2):
+        if isinstance(p1, (np.ndarray, torch.Tensor)):
+            p1 = p1.tolist()
+        if isinstance(p2, (np.ndarray, torch.Tensor)):
+            p2 = p2.tolist()
+        return self.apply(p1, p2)
+
+    @abstractmethod
+    def apply(self, p1, p2):
+        raise NotImplementedError
+
+
+class OrderCrossover(BaseCrossover):
+    def apply(self, p1, p2):
+        n = len(p1)
+        start, end = sorted(random.sample(range(n), 2))
+        sub_tokens = p1[start: end+1]
+        p2 = p2.copy()
+        for token in sub_tokens:
+            p2.remove(token)
+        child = p2[:start] + sub_tokens + p2[start:]
+        return child

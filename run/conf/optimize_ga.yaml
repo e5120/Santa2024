@@ -1,0 +1,84 @@
+# export PYTHONPATH=. && export CUDA_VISIBLE_DEVICES=0 && python run/optimize_ga.py
+hydra:
+  job:
+    name: optimize_ga
+    chdir: true
+  run:
+    dir: ${dir.output_dir}/${exp_name}/single
+  sweep:
+    dir: ${dir.output_dir}/${exp_name}
+    subdir: run${hydra.job.num}
+  callbacks:
+    save_job_info:
+      _target_: hydra.experimental.callbacks.PickleJobInfoCallback
+
+defaults:
+  - _self_
+  - dir: local
+
+target_id: 0
+initial_solution: ~
+
+num_cycles: 20
+n_gens: 100
+pop_size: 300
+mutate_rate: 0.2
+elite_rate: 0.2
+logging_step: 10
+
+crossover_operators: [
+  {
+    name: OrderCrossover,
+    kwargs: {},
+  },
+]
+crossover_sampler: {
+  name: UniformSampler,
+  kwargs: {},
+}
+mutate_operators: [
+  # {
+  #   name: OnePointShuffle,
+  #   kwargs: {},
+  # },
+  {
+   name: PairPointShuffle,
+   kwargs: {},
+  },
+  {
+    name: TokensShuffle,
+    kwargs: {
+      min_tokens: 1,
+      max_tokens: 5,
+    },
+  },
+  {
+    name: TokensReverse,
+    kwargs: {
+      max_tokens: 3,
+    },
+  },
+  {
+    name: TokensInsert,
+    kwargs: {
+      min_tokens: 1,
+      max_tokens: 5,
+    },
+  },
+  {
+    name: TokensRandomShuffle,
+    kwargs: {
+      num_shuffles: 5,
+    },
+  },
+]
+mutate_sampler: {
+  name: UniformSampler,
+  kwargs: {},
+}
+
+exp_name: ga
+model_path: google/gemma-2-9b
+load_in_8bit: False
+device_map: auto
+seed: 42
