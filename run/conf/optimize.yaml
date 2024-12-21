@@ -34,8 +34,8 @@ operators: [
   #   operator_kwargs: {},
   # },
   {
-   operator: PairPointShuffle,
-   operator_kwargs: {},
+    operator: PairPointShuffle,
+    operator_kwargs: {},
   },
   {
     operator: TokensShuffle,
@@ -47,7 +47,7 @@ operators: [
   {
     operator: TokensReverse,
     operator_kwargs: {
-      max_tokens: 3,
+      max_tokens: 5,
     },
   },
   {

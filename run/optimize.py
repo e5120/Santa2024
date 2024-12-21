@@ -17,13 +17,11 @@ TOKEN = "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"
 def main(cfg):
     # setup(cfg)
     df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
-    ops = []
-    for op in cfg.operators:
-        ops.append(
-            getattr(santa.operator, op.operator)(**op.operator_kwargs)
-        )
+    ops = [
+        getattr(santa.operator, op.operator)(**op.operator_kwargs)
+        for op in cfg.operators
+    ]
     sampler = getattr(santa.sampler, cfg.sampler)(ops, **cfg.sampler_kwargs)
-    best_scores = []
     if cfg.initial_solution is None:
         best_text = df.loc[cfg.target_id, "text"]
     else:
@@ -36,7 +34,7 @@ def main(cfg):
         device_map=cfg.device_map,
     )
     precomputed = load_logs(cfg.target_id, root_dir=cfg.dir.log_dir)
-    text_history, score_history = [], []
+    best_scores, text_history, score_history = [], [], []
     for _ in range(cfg.num_cycles):
         best_text, best_score, precomputed, th, sh = simulated_annealing(
             best_text, sampler, scorer,
@@ -51,9 +49,10 @@ def main(cfg):
         )
         text_history += th
         score_history += sh
-        print(f"\nbest score: {best_score:.5f}, # of search: {len(precomputed)}, best order: {best_text}")
+        print(f"\nbest score: {best_score:.5f}, best order: {best_text}")
         save_text(best_text, best_score, cfg.target_id, output_dir=cfg.dir.output_dir)
         best_scores.append(best_score)
+        precomputed.update(load_logs(cfg.target_id, root_dir=cfg.dir.log_dir))
         save_logs(precomputed, cfg.target_id, root_dir=cfg.dir.log_dir)
         save_history(text_history, score_history, cfg.target_id, root_dir=cfg.dir.log_dir)
     print(best_scores)
