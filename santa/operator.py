@@ -116,4 +116,4 @@ class OrderCrossover(BaseCrossover):
         for token in sub_tokens:
             p2.remove(token)
         child = p2[:start] + sub_tokens + p2[start:]
-        return child
+        return [child]

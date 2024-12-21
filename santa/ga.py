@@ -35,12 +35,13 @@ def genetic_algorithm(population, scorer, n_gens, crossover_sampler, mutate_samp
             p1 = p1.split(" ")
             p2 = p2.split(" ")
             crossover_op = crossover_sampler.sample()
-            child = crossover_op(p1, p2)
-            if random.random() < mutate_rate:
-                mutate_op = mutate_sampler.sample()
-                child = mutate_op(child)
-            child = " ".join(child)
-            next_population = np.concatenate([next_population, [child]])
+            childs = crossover_op(p1, p2)
+            for child in childs:
+                if random.random() < mutate_rate:
+                    mutate_op = mutate_sampler.sample()
+                    child = mutate_op(child)
+                child = " ".join(child)
+                next_population = np.concatenate([next_population, [child]])
         population = next_population
         # ログ出力
         if gen % logging_step == 0:
