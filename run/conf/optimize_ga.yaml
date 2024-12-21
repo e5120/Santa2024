@@ -37,13 +37,9 @@ crossover_sampler: {
   kwargs: {},
 }
 mutate_operators: [
-  # {
-  #   name: OnePointShuffle,
-  #   kwargs: {},
-  # },
   {
-   name: PairPointShuffle,
-   kwargs: {},
+    name: PairPointShuffle,
+    kwargs: {},
   },
   {
     name: TokensShuffle,

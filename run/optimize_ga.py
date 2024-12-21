@@ -17,17 +17,15 @@ TOKEN = "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"
 def main(cfg):
     # setup(cfg)
     df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
-    crossover_ops = []
-    for op in cfg.crossover_operators:
-        crossover_ops.append(
-            getattr(santa.operator, op.name)(**op.kwargs)
-        )
+    crossover_ops = [
+        getattr(santa.operator, op.name)(**op.kwargs)
+        for op in cfg.crossover_operators
+    ]
     crossover_sampler = getattr(santa.sampler, cfg.crossover_sampler.name)(crossover_ops, **cfg.crossover_sampler.kwargs)
-    mutate_ops = []
-    for op in cfg.mutate_operators:
-        mutate_ops.append(
-            getattr(santa.operator, op.name)(**op.kwargs)
-        )
+    mutate_ops = [
+        getattr(santa.operator, op.name)(**op.kwargs)
+        for op in cfg.mutate_operators
+    ]
     mutate_sampler = getattr(santa.sampler, cfg.mutate_sampler.name)(mutate_ops, **cfg.mutate_sampler.kwargs)
     best_scores = []
     if cfg.initial_solution is None:
@@ -60,9 +58,10 @@ def main(cfg):
         # ロギング
         best_text = texts[0]
         best_score = scores[0]
-        print(f"\nbest score: {best_score:.5f}, # of search: {len(precomputed)}, best order: {best_text}")
+        print(f"\nbest score: {best_score:.5f}, best order: {best_text}")
         save_text(best_text, best_score, cfg.target_id, output_dir=cfg.dir.output_dir)
         best_scores.append(best_score)
+        precomputed.update(load_logs(cfg.target_id, root_dir=cfg.dir.log_dir))
         save_logs(precomputed, cfg.target_id, root_dir=cfg.dir.log_dir)
     print(best_scores)
     scorer.clear_gpu_memory()
