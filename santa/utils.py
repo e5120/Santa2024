@@ -1,7 +1,7 @@
+import datetime
 import itertools
 import math
 import pickle
-import datetime
 from pathlib import Path
 
 import numpy as np
@@ -32,8 +32,19 @@ def save_text(text, score, target_id, output_dir="./output"):
     f, i = math.modf(score)
     i = int(i)
     f = int(f * 100000)
-    with open(Path(output_dir, f"id{target_id}_{i:0>4}.{f:0>5}.txt"), "w") as f:
-        f.write(text)
+    prefix_filename = f"id{target_id}_{i:0>4}.{f:0>5}"
+    same_files = list(Path(output_dir).glob(f"{prefix_filename}*.txt"))
+    has_same_text = False
+    for filename in same_files:
+        with open(filename) as f:
+            tmp = f.read().strip()
+            print(tmp)
+            if text == tmp:
+                has_same_text = True
+                break
+    if not has_same_text:
+        with open(Path(output_dir, f"{prefix_filename}_{len(same_files)}.txt"), "w") as f:
+            f.write(text)
 
 
 def get_log_path(target_id, root_dir="./logs"):
