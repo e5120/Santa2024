@@ -1,3 +1,4 @@
+import os
 import datetime
 import itertools
 import math
@@ -48,7 +49,8 @@ def save_text(text, score, target_id, output_dir="./output"):
 
 
 def get_log_path(target_id, root_dir="./logs"):
-    return Path(root_dir, f"id{target_id}_logs.pkl")
+    gpu_id = os.environ["CUDA_VISIBLE_DEVICES"]
+    return Path(root_dir, f"id{target_id}_logs_{gpu_id}.pkl")
 
 
 def load_logs(target_id, root_dir="./logs"):
