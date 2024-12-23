@@ -36,7 +36,7 @@ def main(cfg):
     precomputed = load_logs(cfg.target_id, root_dir=cfg.dir.log_dir)
     best_scores, text_history, score_history = [], [], []
     for _ in range(cfg.num_cycles):
-        best_text, best_score, precomputed, th, sh = simulated_annealing(
+        best_text, best_score, current_text, current_score, precomputed, th, sh = simulated_annealing(
             best_text, sampler, scorer,
             temp_start=cfg.temp_start,
             temp_end=cfg.temp_end,
@@ -51,6 +51,7 @@ def main(cfg):
         score_history += sh
         print(f"\nbest score: {best_score:.5f}, best order: {best_text}")
         save_text(best_text, best_score, cfg.target_id, output_dir=cfg.dir.output_dir)
+        save_text(current_text, current_score, cfg.target_id, output_dir=cfg.dir.output_dir)
         best_scores.append(best_score)
         precomputed.update(load_logs(cfg.target_id, root_dir=cfg.dir.log_dir))
         save_logs(precomputed, cfg.target_id, root_dir=cfg.dir.log_dir)

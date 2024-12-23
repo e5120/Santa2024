@@ -43,4 +43,6 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
         temp *= cooling_rate
         if verbose and num_steps % logging_step == 0:
             print(f"\ncurrent temp: {temp:.2f}, current score: {current_score:.5f}, best score: {best_score:.5f}")
-    return " ".join(best_tokens), best_score, precomputed, text_history, score_history
+    best_text = " ".join(best_tokens)
+    current_text = " ".join(current_tokens)
+    return best_text, best_score, current_text, current_score, precomputed, text_history, score_history
