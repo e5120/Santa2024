@@ -3,6 +3,7 @@ import datetime
 import itertools
 import math
 import pickle
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -49,8 +50,8 @@ def save_text(text, score, target_id, output_dir="./output"):
 
 
 def get_log_path(target_id, root_dir="./logs"):
-    gpu_id = os.environ["CUDA_VISIBLE_DEVICES"]
-    return Path(root_dir, f"id{target_id}_logs_{gpu_id}.pkl")
+    gpu_id = os.environ["CUDA_VISIBLE_DEVICES"].replace(",", "-") if "CUDA_VISIBLE_DEVICES" in os.environ else "cpu"
+    return Path(root_dir, f"id{target_id}_logs_{gpu_id}.pkl").resolve()
 
 
 def load_logs(target_id, root_dir="./logs"):
@@ -63,9 +64,14 @@ def load_logs(target_id, root_dir="./logs"):
 
 
 def save_logs(logs, target_id, root_dir="./logs"):
+    with tempfile.NamedTemporaryFile(mode="wb", delete=False, dir=root_dir) as f:
+        pickle.dump(logs, f)
+        f.flush()
+        os.fsync(f.fileno())
+        tmp_file_path = f.name
     Path(root_dir).mkdir(parents=True, exist_ok=True)
     file_path = get_log_path(target_id, root_dir=root_dir)
-    pickle.dump(logs, open(file_path, "wb"))
+    os.replace(tmp_file_path, file_path)
 
 
 def save_history(text_history, score_history, target_id, root_dir="./logs"):

@@ -55,7 +55,7 @@ def main(cfg):
         best_scores.append(best_score)
         precomputed.update(load_logs(cfg.target_id, root_dir=cfg.dir.log_dir))
         save_logs(precomputed, cfg.target_id, root_dir=cfg.dir.log_dir)
-        save_history(text_history, score_history, cfg.target_id, root_dir=cfg.dir.log_dir)
+        # save_history(text_history, score_history, cfg.target_id, root_dir=cfg.dir.log_dir)
     print(best_scores)
     scorer.clear_gpu_memory()
 
