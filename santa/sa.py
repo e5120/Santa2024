@@ -1,9 +1,10 @@
 import math
 import random
+import collections
 
 
 # ToDo: どの操作がスコアを上げたのかをログする機能の追加
-def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, alpha=1.0, precomputed={}, verbose=False, logging_step=1, batch_size=1):
+def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, alpha=1.0, precomputed={}, verbose=False, logging_step=1, batch_size=1, taboo_size=0):
     # initial setting
     text = text.strip()
     current_tokens = text.split(" ")
@@ -11,6 +12,7 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
     best_tokens = current_tokens.copy()
     best_score = current_score
     text_history, score_history = [text], [best_score]
+    taboo_list = collections.deque([text], maxlen=taboo_size)
     # optimization
     temp = temp_start
     print(f"start temp: {temp:.2f}, init score: {best_score:.5f}")
@@ -28,16 +30,20 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
                 precomputed[new_text] = new_score
             delta = new_score - current_score
             if delta < 0 or random.random() < math.exp(-alpha*delta / temp):
-                current_tokens = new_tokens.copy()
-                current_score = new_score
-                text_history.append(new_text)
-                score_history.append(new_score)
+                if new_text not in taboo_list:
+                    taboo_list.append(new_text)
+                    current_tokens = new_tokens.copy()
+                    current_score = new_score
+                    text_history.append(new_text)
+                    score_history.append(new_score)
+                elif delta < 0:
+                    print("<", end="")
+                else:
+                    print("-", end="")
                 if new_score < best_score:
                     best_tokens = new_tokens.copy()
                     best_score = new_score
                     print(">", end="")
-                else:
-                    print("<", end="")
             else:
                 print("-", end="")
         temp *= cooling_rate

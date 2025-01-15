@@ -46,6 +46,7 @@ def main(cfg):
             precomputed=precomputed,
             verbose=cfg.verbose,
             logging_step=cfg.logging_step,
+            taboo_size=cfg.taboo_size,
         )
         text_history += th
         score_history += sh

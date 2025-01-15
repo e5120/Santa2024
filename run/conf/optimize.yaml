@@ -19,7 +19,7 @@ defaults:
 target_id: 0
 initial_solution: ~
 
-num_cycles: 100
+num_cycles: 1000
 temp_start: 10.0
 temp_end: 0.5
 cooling_rate: 0.999
@@ -28,6 +28,7 @@ alpha: 1.0
 verbose: true
 logging_step: 50
 
+taboo_size: 3
 operators: [
   # {
   #   operator: OnePointShuffle,
@@ -41,26 +42,26 @@ operators: [
     operator: TokensShuffle,
     operator_kwargs: {
       min_tokens: 1,
-      max_tokens: 5,
+      max_tokens: 10,
     },
   },
-  {
-    operator: TokensReverse,
-    operator_kwargs: {
-      max_tokens: 5,
-    },
-  },
+  # {
+  #   operator: TokensReverse,
+  #   operator_kwargs: {
+  #     max_tokens: 5,
+  #   },
+  # },
   {
     operator: TokensInsert,
     operator_kwargs: {
       min_tokens: 1,
-      max_tokens: 5,
+      max_tokens: 10,
     },
   },
   {
     operator: TokensRandomShuffle,
     operator_kwargs: {
-      num_shuffles: 5,
+      num_shuffles: 2,
     },
   },
 ]
