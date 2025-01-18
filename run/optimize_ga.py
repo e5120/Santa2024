@@ -3,11 +3,12 @@ from pathlib import Path
 import hydra
 import pandas as pd
 
+import santa.crossover
 import santa.operator
 import santa.sampler
 from santa.ga import genetic_algorithm
 from santa.metrics import PerplexityCalculator
-from santa.utils import setup, save_text, load_logs, save_logs
+from santa.utils import save_text, load_logs, save_logs
 
 
 TOKEN = "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"
@@ -15,41 +16,42 @@ TOKEN = "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"
 
 @hydra.main(config_path="conf", config_name="optimize_ga", version_base=None)
 def main(cfg):
-    # setup(cfg)
-    df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
+    # 利用する交叉の定義
     crossover_ops = [
-        getattr(santa.operator, op.name)(**op.kwargs)
+        getattr(santa.crossover, op.name)(**op.kwargs)
         for op in cfg.crossover_operators
     ]
-    crossover_sampler = getattr(santa.sampler, cfg.crossover_sampler.name)(crossover_ops, **cfg.crossover_sampler.kwargs)
+    crossover_sampler = getattr(santa.sampler, cfg.crossover_sampler.name)(
+        crossover_ops, **cfg.crossover_sampler.kwargs,
+    )
+    # 利用する突然変異の定義
     mutate_ops = [
         getattr(santa.operator, op.name)(**op.kwargs)
         for op in cfg.mutate_operators
     ]
-    mutate_sampler = getattr(santa.sampler, cfg.mutate_sampler.name)(mutate_ops, **cfg.mutate_sampler.kwargs)
-    best_scores = []
+    mutate_sampler = getattr(santa.sampler, cfg.mutate_sampler.name)(
+        mutate_ops, **cfg.mutate_sampler.kwargs,
+    )
+    # 初期解の設定
     if cfg.initial_solution is None:
+        df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
         best_text = df.loc[cfg.target_id, "text"]
     else:
         cfg.target_id = int(Path(cfg.initial_solution).name[2])
         with open(cfg.initial_solution) as f:
             best_text = f.readline()
+    # スコア関数の定義
     scorer = PerplexityCalculator(
         model_path=cfg.model_path,
         load_in_8bit=cfg.load_in_8bit,
         device_map=cfg.device_map,
     )
+    # 最適化
+    best_scores = []
     precomputed = load_logs(cfg.target_id, root_dir=cfg.dir.log_dir)
     for _ in range(cfg.num_cycles):
-        # 初期集団の生成
-        best_tokens = best_text.split(" ")
-        init_population = [best_text]
-        for _ in range(cfg.pop_size - 1):
-            op = mutate_sampler.sample()
-            init_population.append(" ".join(op(best_tokens)))
-        # 最適化
         texts, scores, precomputed = genetic_algorithm(
-            init_population, scorer, cfg.n_gens,
+            best_text, cfg.pop_size, scorer, cfg.n_gens,
             crossover_sampler, mutate_sampler,
             cfg.mutate_rate, cfg.elite_rate,
             precomputed=precomputed,

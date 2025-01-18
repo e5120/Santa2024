@@ -19,16 +19,20 @@ defaults:
 target_id: 0
 initial_solution: ~
 
-num_cycles: 20
+num_cycles: 100
 n_gens: 100
-pop_size: 300
-mutate_rate: 0.2
-elite_rate: 0.2
+pop_size: 100
+mutate_rate: 0.03
+elite_rate: 0.05
 logging_step: 10
 
 crossover_operators: [
   {
     name: OrderCrossover,
+    kwargs: {},
+  },
+  {
+    name: PartiallyMappedCrossover,
     kwargs: {},
   },
 ]
@@ -61,12 +65,12 @@ mutate_operators: [
       max_tokens: 5,
     },
   },
-  {
-    name: TokensRandomShuffle,
-    kwargs: {
-      num_shuffles: 5,
-    },
-  },
+  # {
+  #   name: TokensRandomShuffle,
+  #   kwargs: {
+  #     num_shuffles: 10,
+  #   },
+  # },
 ]
 mutate_sampler: {
   name: UniformSampler,
