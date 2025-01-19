@@ -2,6 +2,8 @@ import random
 
 import numpy as np
 
+from santa.operator import TokensRandomShuffle
+
 
 def get_token2id(text):
     token2id = {}
@@ -62,6 +64,7 @@ def genetic_algorithm(best_text, pop_size, scorer, n_gens, crossover_sampler, mu
     id2token = {v: k for k, v in token2id.items()}
     best_order = tokens2order(best_tokens, token2id)
     population = [best_text]
+    # op = TokensRandomShuffle(num_shuffles=20)
     for _ in range(pop_size - 1):
         # op = mutate_sampler.sample()
         # new_order = op(best_order)
@@ -75,6 +78,7 @@ def genetic_algorithm(best_text, pop_size, scorer, n_gens, crossover_sampler, mu
     for gen in range(n_gens):
         scores, precomputed = get_population_scores(population, scorer, precomputed)
         sorted_indices = np.argsort(scores)
+        # 集団の多様性の喪失をチェック
         top50_text = population[sorted_indices[: pop_size//2]]
         pop_diversity = (len(set(top50_text)) - 1) / len(top50_text)
         if pop_diversity < 1e-3:

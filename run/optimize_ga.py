@@ -8,7 +8,7 @@ import santa.operator
 import santa.sampler
 from santa.ga import genetic_algorithm
 from santa.metrics import PerplexityCalculator
-from santa.utils import save_text, load_logs, save_logs
+from santa.utils import save_text, load_logs, save_logs, setup
 
 
 TOKEN = "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"
@@ -16,7 +16,8 @@ TOKEN = "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"
 
 @hydra.main(config_path="conf", config_name="optimize_ga", version_base=None)
 def main(cfg):
-    # 利用する交叉の定義
+    setup(cfg)
+    # 交叉の定義
     crossover_ops = [
         getattr(santa.crossover, op.name)(**op.kwargs)
         for op in cfg.crossover_operators
@@ -24,7 +25,7 @@ def main(cfg):
     crossover_sampler = getattr(santa.sampler, cfg.crossover_sampler.name)(
         crossover_ops, **cfg.crossover_sampler.kwargs,
     )
-    # 利用する突然変異の定義
+    # 突然変異の定義
     mutate_ops = [
         getattr(santa.operator, op.name)(**op.kwargs)
         for op in cfg.mutate_operators

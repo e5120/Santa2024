@@ -22,8 +22,8 @@ initial_solution: ~
 num_cycles: 100
 n_gens: 100
 pop_size: 100
-mutate_rate: 0.03
-elite_rate: 0.05
+mutate_rate: 0.01
+elite_rate: 0.1
 logging_step: 10
 
 crossover_operators: [
@@ -31,8 +31,16 @@ crossover_operators: [
     name: OrderCrossover,
     kwargs: {},
   },
+  # {
+  #   name: ImprOrderCrossover,
+  #   kwargs: {},
+  # },
   {
     name: PartiallyMappedCrossover,
+    kwargs: {},
+  },
+  {
+    name: CyclicCrossover,
     kwargs: {},
   },
 ]
