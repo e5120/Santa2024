@@ -29,6 +29,7 @@ verbose: true
 logging_step: 50
 
 taboo_size: 3
+fix_ids: []
 operators: [
   # {
   #   operator: OnePointShuffle,
@@ -36,34 +37,36 @@ operators: [
   # },
   {
     operator: PairPointShuffle,
-    operator_kwargs: {},
+    operator_kwargs: {
+    },
   },
   {
     operator: TokensShuffle,
     operator_kwargs: {
       min_tokens: 1,
-      max_tokens: 10,
+      max_tokens: 3,
     },
   },
-  # {
-  #   operator: TokensReverse,
-  #   operator_kwargs: {
-  #     max_tokens: 5,
-  #   },
-  # },
+  {
+    operator: TokensReverse,
+    operator_kwargs: {
+      min_tokens: 2,
+      max_tokens: 3,
+    },
+  },
   {
     operator: TokensInsert,
     operator_kwargs: {
       min_tokens: 1,
-      max_tokens: 10,
+      max_tokens: 3,
     },
   },
-  {
-    operator: TokensRandomShuffle,
-    operator_kwargs: {
-      num_shuffles: 2,
-    },
-  },
+  # {
+  #   operator: TokensRandomShuffle,
+  #   operator_kwargs: {
+  #     num_shuffles: 5,
+  #   },
+  # },
 ]
 
 sampler: UniformSampler

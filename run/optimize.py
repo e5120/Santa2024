@@ -16,13 +16,13 @@ TOKEN = "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"
 @hydra.main(config_path="conf", config_name="optimize", version_base=None)
 def main(cfg):
     # setup(cfg)
-    df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
     ops = [
-        getattr(santa.operator, op.operator)(**op.operator_kwargs)
+        getattr(santa.operator, op.operator)(fix_ids=cfg.fix_ids, **op.operator_kwargs)
         for op in cfg.operators
     ]
     sampler = getattr(santa.sampler, cfg.sampler)(ops, **cfg.sampler_kwargs)
     if cfg.initial_solution is None:
+        df = pd.read_csv(Path(cfg.dir.data_dir, "sample_submission.csv"))
         best_text = df.loc[cfg.target_id, "text"]
     else:
         cfg.target_id = int(Path(cfg.initial_solution).name[2])
