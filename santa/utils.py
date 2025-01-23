@@ -40,7 +40,6 @@ def save_text(text, score, target_id, output_dir="./output"):
     for filename in same_files:
         with open(filename) as f:
             tmp = f.read().strip()
-            print(tmp)
             if text == tmp:
                 has_same_text = True
                 break
