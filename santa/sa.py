@@ -8,6 +8,7 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
     # initial setting
     text = text.strip()
     current_tokens = text.split()
+    current_text = " ".join(current_tokens)
     current_score = scorer.get_perplexity(text, batch_size=batch_size)
     best_tokens = current_tokens.copy()
     best_score = current_score
@@ -35,13 +36,15 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
             # = : スコアの悪化した解を受け入れる
             # < : 現在のスコアを更新
             # > : 最良のスコアを更新
-            if new_text not in taboo_list:
+            if new_text not in taboo_list and new_text != current_text:
                 delta = new_score - current_score
                 if new_score < best_score:
                     taboo_list.append(new_text)
                     best_tokens = new_tokens.copy()
+                    best_text = new_text
                     best_score = new_score
                     current_tokens = new_tokens.copy()
+                    current_text = new_text
                     current_score = new_score
                     text_history.append(new_text)
                     score_history.append(new_score)
@@ -49,6 +52,7 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
                 elif delta < 0 or random.random() < math.exp(-alpha*delta / temp):
                     taboo_list.append(new_text)
                     current_tokens = new_tokens.copy()
+                    current_text = new_text
                     current_score = new_score
                     text_history.append(new_text)
                     score_history.append(new_score)
