@@ -18,18 +18,21 @@ class Operator(metaclass=ABCMeta):
 
 class OnePointShuffle(Operator):
     def apply(self, tokens):
-        i = random.choice(np.arange(1, len(tokens)))
+        i = random.choice(np.arange(1, len(tokens)-1))
         tokens = tokens[i:] + tokens[:i]
         return tokens
 
 
 class PairPointShuffle(Operator):
-    def __init__(self, fix_ids=[]):
+    def __init__(self, fix_ids=[], window_size=None):
         self.fix_ids = fix_ids
+        self.window_size = window_size
 
     def apply(self, tokens):
         remain_ids = list(filter(lambda x: x not in self.fix_ids, range(len(tokens))))
         i, j = random.sample(remain_ids, k=2)
+        while self.window_size and np.abs(i - j) > self.window_size:
+            i, j = random.sample(remain_ids, k=2)
         tokens[i], tokens[j] = tokens[j], tokens[i]
         return tokens
 
@@ -76,16 +79,18 @@ class TokensReverse(Operator):
             for fix_id in self.fix_ids:
                 if i <= fix_id < k:
                     is_valid = False
+                    break
         tokens[i:k] = tokens[i:k][::-1]
         return tokens
 
 
 class TokensInsert(Operator):
-    def __init__(self, min_tokens=2, max_tokens=2, fix_ids=[]):
+    def __init__(self, min_tokens=2, max_tokens=2, fix_ids=[], window_size=None):
         assert min_tokens <= max_tokens
         self.min_tokens = min_tokens
         self.max_tokens = max_tokens
         self.fix_ids = fix_ids
+        self.window_size = window_size
 
     def apply(self, tokens):
         assert len(tokens) > self.max_tokens
@@ -96,7 +101,12 @@ class TokensInsert(Operator):
         k = min(i+j, len(tokens))
         sub_tokens = tokens[i:k]
         main_tokens = tokens[:i] + tokens[k:]
-        l = random.choice(range(len(main_tokens)))
+        if self.window_size is None:
+            candidate_ids = range(len(main_tokens))
+        else:
+            mid_id = (i + k) // 2
+            candidate_ids = range(max(0, mid_id-self.window_size), min(len(main_tokens), mid_id+self.window_size))
+        l = random.choice(candidate_ids)
         tokens = main_tokens[:l] + sub_tokens + main_tokens[l:]
         for fix_id, fix_token in zip(self.fix_ids, fix_tokens, strict=True):
             tokens.remove(fix_token)
