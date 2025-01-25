@@ -28,7 +28,7 @@ alpha: 1.0
 verbose: true
 logging_step: 50
 
-taboo_size: 3
+taboo_size: 0
 fix_ids: []
 operators: [
   # {
@@ -38,29 +38,32 @@ operators: [
   {
     operator: PairPointShuffle,
     operator_kwargs: {
-      window_size: 20,
+      window_size: ~,
+      min_p: 0.05,
     },
   },
-  # {
-  #   operator: TokensShuffle,
-  #   operator_kwargs: {
-  #     min_tokens: 1,
-  #     max_tokens: 3,
-  #   },
-  # },
+  {
+    operator: TokensShuffle,
+    operator_kwargs: {
+      min_tokens: 1,
+      max_tokens: 5,
+      min_p: 1.0e-08,
+    },
+  },
   {
     operator: TokensReverse,
     operator_kwargs: {
       min_tokens: 2,
-      max_tokens: 3,
+      max_tokens: 4,
     },
   },
   {
     operator: TokensInsert,
     operator_kwargs: {
       min_tokens: 1,
-      max_tokens: 3,
-      window_size: 10,
+      max_tokens: 5,
+      window_size: ~,
+      min_p: 0.01,
     },
   },
   # {
