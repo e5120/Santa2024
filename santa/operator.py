@@ -196,3 +196,27 @@ class TokensRandomShuffle(Operator):
         for _ in range(num_shuffles):
             tokens = self.pps(tokens)
         return tokens
+
+
+class SkipInsert(Operator):
+    def __init__(self, min_tokens=2, max_tokens=3, skip_size=2, start_id=0, fix_ids=[]):
+        assert min_tokens <= max_tokens
+        self.min_tokens = min_tokens
+        self.max_tokens = max_tokens
+        self.skip_size = skip_size
+        self.start_id = start_id
+
+    def apply(self, tokens):
+        assert len(tokens) > self.max_tokens
+        tokens = tokens.copy()
+        i = np.random.choice(range(self.start_id, len(tokens)))
+        j = random.choice(range(self.min_tokens, self.max_tokens+1))
+        k = min(i+j*self.skip_size, len(tokens)-1)
+        sub_ids = range(i, k, self.skip_size)
+        main_ids = list(filter(lambda x: x not in sub_ids, range(len(tokens))))
+        sub_tokens = [tokens[l] for l in sub_ids]
+        main_tokens = [tokens[l] for l in main_ids]
+        candidate_ids = range(len(main_tokens))
+        l = np.random.choice(candidate_ids, p=None)
+        tokens = main_tokens[:l] + sub_tokens + main_tokens[l:]
+        return tokens
