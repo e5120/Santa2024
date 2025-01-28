@@ -13,26 +13,23 @@ STOP_WORDS = [
 
 
 def get_probability(index, tokens, stopwords=STOP_WORDS, min_value=0.0):
-    if isinstance(index, str):
-        token = index
-    else:
-        token = tokens[index]
+    token = index if isinstance(index, str) else tokens[index]
+    p = np.array([min_value] * len(tokens))
     if token in stopwords:
-        p = np.array([min_value] * len(tokens))
         for i in range(len(tokens)):
             if tokens[i] in stopwords:
-                if tokens[i] == token:
-                    p[i] = 0
-                else:
-                    p[i] = 1
+                p[i] = 0 if tokens[i] == token else 1  # 同じ単語だったら入れ替えても意味ないので，確率0にする
         p /= p.sum()
     else:
         char = token[0]
-        p = [min_value] * len(tokens)
         for i in range(len(tokens)):
-            if token == tokens[i]:
+            i_token = tokens[i]                     # 現在のトークン
+            p_token = tokens[max(0, i-1)]           # 1つ前のトークン
+            if i_token in stopwords:  # ストップワードの場合，基本入れ替え不要なのでスキップ
+                continue
+            if token == i_token:  # 同じ単語だったら入れ替えても意味ないので，確率0にする
                 p[i] = 0
-            elif char == tokens[i][0] and tokens[i] not in stopwords:
+            elif char == i_token[0] or char == p_token[0] or (char <= i_token[0] and i_token[0] < p_token[0]):  # 先頭のアルファベットが同じ or グループの境目
                 p[i] = 1
         p = np.array(p, dtype=float)
         p_sum = p.sum()
