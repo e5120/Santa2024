@@ -109,3 +109,10 @@ def order2token(order, id2token):
     for i in order:
         tokens.append(id2token[i].split("_")[0])
     return tokens
+
+
+def load_file(filename):
+    score = float(str(filename).split("_")[1].split(".txt")[0])
+    with open(filename) as f:
+        text = f.readline().strip()
+    return text, score
