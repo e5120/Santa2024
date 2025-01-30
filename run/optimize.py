@@ -7,15 +7,11 @@ import santa.operator
 import santa.sampler
 from santa.sa import simulated_annealing
 from santa.metrics import PerplexityCalculator
-from santa.utils import setup, save_text, load_logs, save_logs, save_history
-
-
-TOKEN = "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"
+from santa.utils import save_text, load_logs, save_logs
 
 
 @hydra.main(config_path="conf", config_name="optimize", version_base=None)
 def main(cfg):
-    # setup(cfg)
     ops = [
         getattr(santa.operator, op.operator)(fix_ids=cfg.fix_ids, **op.operator_kwargs)
         for op in cfg.operators
@@ -34,30 +30,20 @@ def main(cfg):
         device_map=cfg.device_map,
     )
     precomputed = load_logs(cfg.target_id, root_dir=cfg.dir.log_dir)
-    best_scores, text_history, score_history = [], [], []
+    best_scores, current_scores = [], []
     for _ in range(cfg.num_cycles):
-        best_text, best_score, current_text, current_score, precomputed, th, sh = simulated_annealing(
-            best_text, sampler, scorer,
-            temp_start=cfg.temp_start,
-            temp_end=cfg.temp_end,
-            cooling_rate=cfg.cooling_rate,
-            steps_per_temp=cfg.steps_per_temp,
-            alpha=cfg.alpha,
-            precomputed=precomputed,
-            verbose=cfg.verbose,
-            logging_step=cfg.logging_step,
-            taboo_size=cfg.taboo_size,
+        best_text, best_score, current_text, current_score, precomputed = simulated_annealing(
+            best_text, sampler, scorer, precomputed=precomputed, **cfg.sa_kwargs,
         )
-        text_history += th
-        score_history += sh
-        print(f"\nbest score: {best_score:.5f}, best order: {best_text}")
+        print(f"\nbest score: {best_score:.5f}\nbest text: {best_text}")
         save_text(best_text, best_score, cfg.target_id, output_dir=cfg.dir.output_dir)
         save_text(current_text, current_score, cfg.target_id, output_dir=cfg.dir.output_dir)
         best_scores.append(best_score)
+        current_scores.append(current_score)
         precomputed.update(load_logs(cfg.target_id, root_dir=cfg.dir.log_dir))
         save_logs(precomputed, cfg.target_id, root_dir=cfg.dir.log_dir)
-        # save_history(text_history, score_history, cfg.target_id, root_dir=cfg.dir.log_dir)
-    print(best_scores)
+    print("current scores\n", current_scores)
+    print("best scores\n", best_scores)
     scorer.clear_gpu_memory()
 
 

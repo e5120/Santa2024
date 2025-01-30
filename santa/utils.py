@@ -1,5 +1,4 @@
 import os
-import datetime
 import itertools
 import math
 import pickle
@@ -7,13 +6,12 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-# import hydra
 import lightning as L
 
 
 def setup(cfg):
-#     cfg.dir.output_dir = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
     L.seed_everything(cfg["seed"])
+    return cfg
 
 
 def sub_permutations(tokens, fixed_ids=[]):
@@ -73,12 +71,41 @@ def save_logs(logs, target_id, root_dir="./logs"):
     os.replace(tmp_file_path, file_path)
 
 
-def save_history(text_history, score_history, target_id, root_dir="./logs"):
-    today = datetime.datetime.today().strftime('%Y%m%d_%H%M')
-    Path(root_dir).mkdir(parents=True, exist_ok=True)
-    file_path = Path(root_dir, f"id{target_id}_{today}.pkl")
-    logs = {
-        "text": text_history,
-        "score": score_history,
-    }
-    pickle.dump(logs, open(file_path, "wb"))
+def get_token2id(text):
+    token2id = {}
+    tokens = text.split()
+    for i in range(len(tokens)):
+        token = tokens[i]
+        if token not in token2id:
+            token2id[token] = len(token2id)
+        else:
+            j = 2
+            new_token = f"{token}_{j}"
+            while new_token in token2id:
+                j += 1
+                new_token = f"{token}_{j}"
+            token2id[new_token] = len(token2id)
+    return token2id
+
+
+def tokens2order(tokens, token2id):
+    token2id = token2id.copy()
+    order = []
+    for token in tokens:
+        if token in token2id:
+            order.append(token2id.pop(token))
+        else:
+            j = 2
+            new_token = f"{token}_{j}"
+            while new_token not in token2id:
+                j += 1
+                new_token = f"{token}_{j}"
+            order.append(token2id.pop(new_token))
+    return order
+
+
+def order2token(order, id2token):
+    tokens = []
+    for i in order:
+        tokens.append(id2token[i].split("_")[0])
+    return tokens

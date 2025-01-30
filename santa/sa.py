@@ -3,16 +3,17 @@ import random
 import collections
 
 
-# ToDo: どの操作がスコアを上げたのかをログする機能の追加
-def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cooling_rate=0.95, steps_per_temp=5, alpha=1.0, precomputed={}, verbose=False, logging_step=1, batch_size=1, taboo_size=0):
+def simulated_annealing(text, sampler, scorer, precomputed={}, temp_start=10, temp_end=0.5,
+                        cooling_rate=0.95, steps_per_temp=5, alpha=1.0, verbose=False,
+                        logging_step=1,taboo_size=0):
     # initial setting
     text = text.strip()
     current_tokens = text.split()
     current_text = " ".join(current_tokens)
-    current_score = scorer.get_perplexity(text, batch_size=batch_size)
+    current_score = scorer.get_perplexity(text)
     best_tokens = current_tokens.copy()
+    best_text = current_text
     best_score = current_score
-    text_history, score_history = [text], [best_score]
     taboo_list = collections.deque([text], maxlen=taboo_size)
     # optimization
     temp = temp_start
@@ -29,7 +30,7 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
             if new_text in precomputed:
                 new_score = precomputed[new_text]
             else:
-                new_score = scorer.get_perplexity(new_text, batch_size=batch_size)
+                new_score = scorer.get_perplexity(new_text)
                 precomputed[new_text] = new_score
             # 近傍解の採否判定
             # - : 解を更新しない
@@ -46,16 +47,12 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
                     current_tokens = new_tokens.copy()
                     current_text = new_text
                     current_score = new_score
-                    text_history.append(new_text)
-                    score_history.append(new_score)
                     print(">", end="")
-                elif delta < 0 or random.random() < math.exp(-alpha*delta / temp):
+                elif delta < 0 or random.random() < math.exp(-alpha * delta / temp):
                     taboo_list.append(new_text)
                     current_tokens = new_tokens.copy()
                     current_text = new_text
                     current_score = new_score
-                    text_history.append(new_text)
-                    score_history.append(new_score)
                     if delta < 0:
                         print("<", end="")
                     else:
@@ -67,6 +64,4 @@ def simulated_annealing(text, sampler, scorer, temp_start=10, temp_end=0.5, cool
         temp *= cooling_rate
         if verbose and num_steps % logging_step == 0:
             print(f"\ntemp: {temp:.5f}, current score: {current_score:.5f}, best score: {best_score:.5f}")
-    best_text = " ".join(best_tokens)
-    current_text = " ".join(current_tokens)
-    return best_text, best_score, current_text, current_score, precomputed, text_history, score_history
+    return best_text, best_score, current_text, current_score, precomputed
